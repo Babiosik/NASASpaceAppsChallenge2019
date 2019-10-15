@@ -2,21 +2,20 @@
   "name": "spaceappschallenge",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "private": true,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Babiosik/NASASpaceAppsChallenge2019.git"
   },
-  "author": "",
+  "author": "Sleepy Fools Team",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/Babiosik/NASASpaceAppsChallenge2019/issues"
   },
   "homepage": "https://github.com/Babiosik/NASASpaceAppsChallenge2019#readme",
   "dependencies": {
-    "three": "^0.109.0"
+    "three": "^0.109.0",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.9"
   }
 }
