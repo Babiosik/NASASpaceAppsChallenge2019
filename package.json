@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "private": true,
+  "scripts": {
+    "start": "npx webpack --config webpack.config.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Babiosik/NASASpaceAppsChallenge2019.git"
