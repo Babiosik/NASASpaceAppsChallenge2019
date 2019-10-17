@@ -6,6 +6,8 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass.js';
 
 import Earth from './earth.js';
+import Satellite from './satellite.js';
+import Trash from './trash.js';
 import StarsBackground from './starsBackground.js';
 
 const screen = {
@@ -29,18 +31,18 @@ const dirLight = new THREE.DirectionalLight( 0xffffff );
 const scene = new THREE.Scene();
 const clock = new THREE.Clock();
 let controls, renderer, stats, composer;
+let satellites = [], trashs = [];
 
-var d, dPlanet, dMoon, dMoonVec = new THREE.Vector3();
 init();
 animate();
 function init() {
-    camera.position.z = 11e3;
+    camera.position.z = earth.radius + 4e3;
     scene.fog = new THREE.FogExp2( 0x000000, 0.00000025 );
-    dirLight.position.set( - 1, 0, 1 ).normalize();
+    dirLight.position.set( -1.25, 0, 0.75 ).normalize();
 
     scene.add( dirLight );
-    scene.add( earth.mesh );
-    scene.add( earth.moon.mesh );
+    scene.add( earth.phantom );
+    scene.add( earth.moon.phantom );
 
     starsBackground.stars.forEach((star, index, arr) => {
         scene.add(star);
@@ -67,8 +69,20 @@ function init() {
     composer = new EffectComposer( renderer );
     composer.addPass( renderModel );
     composer.addPass( effectFilm );
+
+    new Satellite('hubble', 0.5, earth.radius + 560, 0.19, earth.tilt + 0, satelliteReady);
+    new Satellite('iss', 1.5, earth.radius + 408, 0.767, earth.tilt + 0.897, satelliteReady);
+
 }
 
+function trashReady (trash) {
+    scene.add(trash.phantom);
+    farTrashs.push(trash);
+}
+function satelliteReady (satellite) {
+    scene.add(satellite.phantom);
+    satellites.push(satellite);
+}
 function animate() {
     requestAnimationFrame( animate );
     render();
@@ -79,6 +93,13 @@ function render() {
     var delta = clock.getDelta();
     earth.update(delta);
     
+    satellites.forEach((satl, _, __) => {
+        satl.update(delta);
+    });
+    trashs.forEach((trash, _, __) => {
+        trash.update(delta);
+    });
+
     controls.update( delta );
     composer.render( delta );
 }  
