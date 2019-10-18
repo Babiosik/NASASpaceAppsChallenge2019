@@ -14,13 +14,13 @@ class Trash {
 
         let speed = Math.random() * (speedMax - speedMin) + speedMin;
         this.tilt = Math.random() * 3.14;
-        this.speedRotate = Math.random() * 1.5 - 3;
+        this.speedRotate = Math.random() * 6 - 3;
         this.velocity = new Vector3(Math.random() + 0.5, Math.random() - 0.5, 0).multiplyScalar(-speed);
         this.mesh = null;
 
         let i = 0;
         let name = trashs[i].filename;
-        let scale = (trashs[i].scale + Math.random() - 0.5) * 0.5;
+        let scale = (trashs[i].scale + Math.random() - 0.5) * 1.5;
 
         this.phantom = new Mesh( new SphereBufferGeometry( 1, 1, 1 ), new MeshBasicMaterial( { color: 0x000000 } ));
 

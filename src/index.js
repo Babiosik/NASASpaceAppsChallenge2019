@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
-import { FlyControls } from 'three/examples/jsm/controls/FlyControls.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass.js';
@@ -9,6 +8,7 @@ import Earth from './earth.js';
 import Satellite from './satellite.js';
 import Trash from './trash.js';
 import StarsBackground from './starsBackground.js';
+import Player from './player.js';
 
 const screen = {
     height: window.innerHeight - 5,
@@ -24,19 +24,22 @@ const screen = {
     }
 };
 
-const camera = new THREE.PerspectiveCamera( 90, screen.width / screen.height, 1, screen.far );
+const player = new Player(screen);
 const earth = new Earth();
 const starsBackground = new StarsBackground(2e4);
 const dirLight = new THREE.DirectionalLight( 0xffffff );
 const scene = new THREE.Scene();
 const clock = new THREE.Clock();
-let controls, renderer, stats, composer;
+let stats, composer;
 let satellites = [], trashs = [];
 
 init();
 animate();
 function init() {
-    camera.position.z = earth.radius + 4e3;
+
+    scene.add(player.phantom);
+
+    player.phantom.position.z = earth.radius + 4e3;
     scene.fog = new THREE.FogExp2( 0x000000, 0.00000025 );
     dirLight.position.set( -1.25, 0, 0.75 ).normalize();
 
@@ -48,25 +51,16 @@ function init() {
         scene.add(star);
     });
 
-    renderer = new THREE.WebGLRenderer( { antialias: true } );
-    renderer.setPixelRatio( window.devicePixelRatio );
-    renderer.setSize( screen.width, screen.height );
-    document.body.appendChild( renderer.domElement );
-    //
-    controls = new FlyControls( camera );
-    controls.movementSpeed = 10;
-    controls.domElement = renderer.domElement;
-    controls.rollSpeed = Math.PI / 12;
-    controls.autoForward = false;
-    controls.dragToLook = true;
+    document.body.appendChild( player.renderer.domElement );
     //
     stats = new Stats();
     document.body.appendChild( stats.dom );
     window.addEventListener( 'resize', screen.resize, false );
+
     // postprocessing
-    var renderModel = new RenderPass( scene, camera );
-    var effectFilm = new FilmPass( 0.35, 0.75, 2048, false );
-    composer = new EffectComposer( renderer );
+    let renderModel = new RenderPass( scene, player.camera );
+    let effectFilm = new FilmPass( 0.25, 0.55, 2048, false );
+    composer = new EffectComposer( player.renderer );
     composer.addPass( renderModel );
     composer.addPass( effectFilm );
 
@@ -74,7 +68,7 @@ function init() {
     new Satellite('iss', 1.5, earth.radius + 408, -0.767, earth.tilt + 0.897, satelliteReady);
 
     for(let i = 0; i < 100; i++)
-        new Trash(camera, 10, 20, trashReady);
+        new Trash(player.phantom, 10, 20, trashReady);
 
     setInterval(updateMap, 1000);
 }
@@ -103,19 +97,19 @@ function render() {
         trash.update(delta);
     });
 
-    controls.update( delta );
+    player.controls.update( delta );
     composer.render( delta );
 }
 function updateMap() {
     trashs.forEach((trash, index, __) => {
-        let d = camera.position.distanceTo(trash.phantom.position);
+        let d = player.phantom.position.distanceTo(trash.phantom.position);
         if (d > 1000) {
             remove3DO(trash.phantom);
             trashs.splice(index, 1);
         }
     });
     if (trashs.length < 300)
-        new Trash(camera, 10, 20, trashReady);
+        new Trash(player.phantom, 10, 20, trashReady);
 }
 function remove3DO(obj) {
     let selectedObject = scene.getObjectById(obj.id);
