@@ -10,7 +10,7 @@ class Trash {
         let pos = player.position;
         let x = pos.x + (Math.random() * 100 + 500);// * (Math.random() > 0.5 ? 1 : -1);
         let y = pos.y + Math.random() * 800 - 400;
-        let z = pos.z + Math.random() * 400 - 200;
+        let z = pos.z + Math.random() * 400 - 300;
 
         let speed = Math.random() * (speedMax - speedMin) + speedMin;
         this.tilt = Math.random() * 3.14;
@@ -20,7 +20,7 @@ class Trash {
 
         let i = 0;
         let name = trashs[i].filename;
-        let scale = (trashs[i].scale + Math.random() - 0.5);
+        let scale = (trashs[i].scale + Math.random() - 0.5) * 0.5;
 
         this.phantom = new Mesh( new SphereBufferGeometry( 1, 1, 1 ), new MeshBasicMaterial( { color: 0x000000 } ));
 
@@ -44,6 +44,8 @@ class Trash {
             self.phantom.position.y = y;
             self.phantom.position.z = z;
 
+            self.rotateOnAxis = new Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5);
+
             onLoad(self);
         } );
     }
@@ -51,7 +53,9 @@ class Trash {
         if (this.mesh == null)
             return;
         this.phantom.translateOnAxis(this.velocity, delta);
-        this.mesh.rotateY(delta * this.speedRotate);
+        this.mesh.rotateX(this.rotateOnAxis.x * delta * this.speedRotate);
+        this.mesh.rotateY(this.rotateOnAxis.x * delta * this.speedRotate);
+        this.mesh.rotateZ(this.rotateOnAxis.x * delta * this.speedRotate);
     }
 }
 
