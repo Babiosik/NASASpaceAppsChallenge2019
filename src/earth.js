@@ -42,8 +42,6 @@ class Earth {
         } );
         const meshClouds = new Mesh( geometry, materialClouds );
         meshClouds.scale.set( cloudsScale, cloudsScale, cloudsScale );
-        meshClouds.castShadow = true;
-        meshClouds.receiveShadow = true;
         this.phantom.add(meshClouds);
         this.meshClouds = meshClouds;
 

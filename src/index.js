@@ -71,13 +71,17 @@ function init() {
     composer.addPass( effectFilm );
 
     new Satellite('hubble', 0.5, earth.radius + 560, 0.19, earth.tilt + 0, satelliteReady);
-    new Satellite('iss', 1.5, earth.radius + 408, 0.767, earth.tilt + 0.897, satelliteReady);
+    new Satellite('iss', 1.5, earth.radius + 408, -0.767, earth.tilt + 0.897, satelliteReady);
 
+    for(let i = 0; i < 100; i++)
+        new Trash(camera, 10, 20, trashReady);
+
+    setInterval(updateMap, 1000);
 }
 
 function trashReady (trash) {
     scene.add(trash.phantom);
-    farTrashs.push(trash);
+    trashs.push(trash);
 }
 function satelliteReady (satellite) {
     scene.add(satellite.phantom);
@@ -89,7 +93,6 @@ function animate() {
     stats.update();
 }
 function render() {
-    // rotate the planet and clouds
     var delta = clock.getDelta();
     earth.update(delta);
     
@@ -102,7 +105,24 @@ function render() {
 
     controls.update( delta );
     composer.render( delta );
-}  
+}
+function updateMap() {
+    trashs.forEach((trash, index, __) => {
+        let d = camera.position.distanceTo(trash.phantom.position);
+        if (d > 1000) {
+            remove3DO(trash.phantom);
+            trashs.splice(index, 1);
+        }
+    });
+    if (trashs.length < 300)
+        new Trash(camera, 10, 20, trashReady);
+}
+function remove3DO(obj) {
+    let selectedObject = scene.getObjectById(obj.id);
+    scene.remove( selectedObject );
+    selectedObject.geometry.dispose();
+    selectedObject.material.dispose();
+}
 
 
 
