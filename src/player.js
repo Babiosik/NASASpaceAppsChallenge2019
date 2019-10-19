@@ -1,8 +1,9 @@
-import { PerspectiveCamera, WebGLRenderer, Mesh, MeshBasicMaterial, BoxBufferGeometry, Vector3 } from 'three';
+import { PerspectiveCamera, WebGLRenderer, Mesh, MeshBasicMaterial, BoxBufferGeometry, SceneUtils, Vector3 } from 'three';
 import { FlyControls } from 'three/examples/jsm/controls/FlyControls.js';
 
 class Player {
-    constructor(screen) {
+    constructor(screen, scene) {
+        this.scene = scene;
         this.camera = new PerspectiveCamera( 70, screen.width / screen.height, 1, screen.far );
         this.phantom = new Mesh( new BoxBufferGeometry( 1, 1, 1 ), new MeshBasicMaterial( { color: 0x005500, } ) );
         this.phantom.add(this.camera);
@@ -17,7 +18,7 @@ class Player {
         this.renderer.setSize( screen.width, screen.height );
 
         this.controls = new FlyControls( this.phantom );
-        this.controls.movementSpeed = 100;
+        this.controls.movementSpeed = 30;
         this.controls.domElement = this.renderer.domElement;
         this.controls.rollSpeed = Math.PI / 12;
         this.controls.autoForward = false;
@@ -52,15 +53,17 @@ class Player {
     hasWarningObject(obj) {
         return this.warningTrash.indexOf(obj) != -1;
     }
-    clawClose() {
+    clawClose(objectClawled) {
         if (this.isClawClosed)
             return;
         this.isClawClosed = true;
         this.clawAnimStage = -1;
+        this.objectClawled = objectClawled;
     }
 
     update(delta) {
-        this.controls.update( delta );
+        if (this.clawAnimStage != 100)
+            this.controls.update( delta );
 
         if (this.clawAnimStage != 0) {
             switch(this.clawAnimStage) {
@@ -75,7 +78,7 @@ class Player {
                     this.leftHandClaw.translateZ(this.clawAnimStage * 0.5 * delta);
                     this.rightHandClaw.translateZ(this.clawAnimStage * 0.5 * delta);
                     if (this.leftHandClaw.position.z < -8.05) {
-                        this.clawAnimStage = 2;
+                        this.clawAnimStage = 100;
                     }
                     break;
                 case 1:
@@ -91,6 +94,21 @@ class Player {
                     this.rightHandClaw.translateZ(this.clawAnimStage * 0.5 * delta);
                     if (this.leftHandClaw.position.z > -8) {
                         this.clawAnimStage = 1;
+                    }
+                    break;
+
+                case 100:
+                    if (this.objectClawled) {
+                        this.objectClawled.phantom.scale.addScalar(-0.4 * delta);
+                        let d = this.phantom.attach(this.pickup).position.distanceTo(this.objectClawled.mesh.position);
+                        if (d > 6) {
+                            this.objectClawled = undefined;
+                            this.clawAnimStage = 2;
+                        } else if (this.objectClawled.phantom.scale.x < 0.3) {
+                            this.objectClawled.delete(this.objectClawled.phantom);
+                            this.objectClawled = undefined;
+                            this.clawAnimStage = 2;
+                        }
                     }
                     break;
             }

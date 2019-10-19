@@ -18,19 +18,19 @@ const screen = {
     resize: function () {
         this.width = window.innerWidth;
         this.height = window.innerHeight;
-        camera.aspect = this.width / this.height;
-        camera.updateProjectionMatrix();
+        //camera.aspect = this.width / this.height;
+        //camera.updateProjectionMatrix();
         renderer.setSize( this.width, this.height );
         composer.setSize( this.width, this.height );
     }
 };
 
-const player = new Player(screen);
 const earth = new Earth();
 const starsBackground = new StarsBackground(2e4);
 const dirLight = new THREE.DirectionalLight( 0xffffff );
 const scene = new THREE.Scene();
 const clock = new THREE.Clock();
+const player = new Player(screen, scene);
 let stats, composer;
 let satellites = [], trashs = [];
 
@@ -74,7 +74,7 @@ function init() {
     setInterval(updateMap, 1000);
     document.addEventListener("keydown", onDocumentKeyDown, false);
 
-    new TestObj(player.phantom, 0, 0, trashReady);
+    new TestObj(player.phantom, trashReady);
 }
 
 function trashReady (trash) {
@@ -111,7 +111,11 @@ function updateMap() {
             remove3DO(trash.phantom);
             trashs.splice(index, 1);
         } else if (d < 50) {
-            player.addWarningObject(trash);
+            if (!player.hasWarningObject(trash))
+                player.addWarningObject(trash);
+            if (d < 2) {
+                console.log ('death');
+            }
         } else if (player.hasWarningObject(trash)) {
             player.removeWarningObject(trash);
         }
@@ -127,11 +131,12 @@ function remove3DO(obj) {
 }
 function onDocumentKeyDown (event) {
     let keyCode = event.which;
-    if (keyCode == 90 /*&& player.warningTrash.length > 0*/) {
+    if (keyCode == 90 && player.warningTrash.length > 0) {
         player.warningTrash.forEach((trash, _, __) => {
-            let d = player.phantom.attach(player.pickup).position.distanceTo(trash.phantom.position);
-            if (d < 50) {
-                player.clawClose();
+            let d = player.phantom.attach(player.pickup).position.distanceTo(trash.mesh.position);
+            if (d < 5) {
+                trash.delete = remove3DO;
+                player.clawClose(trash);
             }            
         });
     }
