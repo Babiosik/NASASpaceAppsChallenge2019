@@ -1,7 +1,6 @@
-import { MeshPhongMaterial, Mesh, VertexColors, MeshBasicMaterial, TextureLoader, Vector3, SphereBufferGeometry } from 'three';
-import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js';
-const loader = new STLLoader();
-const textureLoader = new TextureLoader();
+import { MeshPhongMaterial, Mesh, VertexColors, MeshBasicMaterial, TextureLoader, Vector3, SphereBufferGeometry, ImageUtils, LoadingManager } from 'three';
+import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js';
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
 
 const trashs = require('../models/trash/index.json');
 
@@ -12,33 +11,34 @@ class TestObj {
         let y = pos.y;
         let z = pos.z - 100;
 
-        let i = 0;
+        let i = 1;
         //console.log(trashs.length); 33
 
         let name = trashs[i].filename;
-        let scale = 5;//(trashs[i].scale + Math.random() - 0.5) * 1.5;
+        let scale = trashs[i].scale;//( + Math.random() - 0.5) * 1.5;
         this.speedRotate = 0.2;
 
-        this.phantom = new Mesh( new SphereBufferGeometry( 10, 3, 3), new MeshBasicMaterial( { color: 0x000000 } ));
+        this.phantom = new Mesh( new SphereBufferGeometry( .1, 3, 3), new MeshBasicMaterial( { color: 0x000000, transparent: true, opacity: 0.8 } ));
 
         const self = this;
-        loader.load('/models/trash/' + name, function ( geometry ) {
-            let meshMaterial = new MeshPhongMaterial( {
-                map: textureLoader.load( "/textures/planets/earth_atmos_4096.jpg" ),
-                specularMap: textureLoader.load( "/textures/planets/earth_specular_2048.jpg" ),
-            } );
-            console.log("Ge")
-            let mesh = new Mesh( new SphereBufferGeometry( 100, 100, 100 ), meshMaterial );
-            //mesh.scale.set( scale, scale, scale );
-         
-            self.mesh = mesh;
-            self.phantom.add(mesh);
-            self.phantom.position.x = x;
-            self.phantom.position.y = y;
-            self.phantom.position.z = z;
 
-            onLoad(self);
-        } );
+        // model
+        new MTLLoader()
+            .setPath( '/models/trash/' )
+            .load( name + '.mtl', function ( materials ) {
+                materials.preload();
+                new OBJLoader()
+                    .setMaterials( materials )
+                    .setPath( '/models/trash/' )
+                    .load( name + '.obj', function ( obj ) {
+                        self.mesh = obj;
+                        self.phantom.add(obj);
+                        self.phantom.position.x = x; self.mesh.position.x = 0;
+                        self.phantom.position.y = y; self.mesh.position.y = 0;
+                        self.phantom.position.z = z; self.mesh.position.z = 0;
+                        onLoad(self);
+                    });
+            } );
     }
     update(delta) {
         if (this.mesh == null)
