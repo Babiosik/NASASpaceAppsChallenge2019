@@ -6,6 +6,7 @@ class Player {
         this.camera = new PerspectiveCamera( 70, screen.width / screen.height, 1, screen.far );
         this.phantom = new Mesh( new BoxBufferGeometry( 1, 1, 1 ), new MeshBasicMaterial( { color: 0x005500, } ) );
         this.phantom.add(this.camera);
+        this.warningTrash = [];
         //this.camera.translateZ(-1);
 
         this.renderer = new WebGLRenderer( { antialias: true } );
@@ -13,12 +14,11 @@ class Player {
         this.renderer.setSize( screen.width, screen.height );
 
         this.controls = new FlyControls( this.phantom );
-        this.controls.movementSpeed = 10;
+        this.controls.movementSpeed = 100;
         this.controls.domElement = this.renderer.domElement;
         this.controls.rollSpeed = Math.PI / 12;
         this.controls.autoForward = false;
         this.controls.dragToLook = true;
-
 
         let leftHand = new Mesh( new BoxBufferGeometry( 0.2, 0.2, 8 ), new MeshBasicMaterial( { color: 0xaaaaaa } ) );
         let rightHand = new Mesh( new BoxBufferGeometry( 0.2, 0.2, 8 ), new MeshBasicMaterial( { color: 0xaaaaaa } ) );
@@ -31,9 +31,17 @@ class Player {
         leftHand.position.y =     rightHand.position.y = -1; this.pickup.position.y = -1;
         leftHand.position.z =     rightHand.position.z = -4; this.pickup.position.z = -7;
 
-
-
     }
+    addWarningObject(obj) {
+        this.warningTrash.push(obj);
+    }
+    removeWarningObject(obj) {
+        this.warningTrash.splice(this.warningTrash.indexOf(obj), 1);
+    }
+    hasWarningObject(obj) {
+        return this.warningTrash.indexOf(obj) != -1;
+    }
+
 }
 
 export default Player;

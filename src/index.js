@@ -9,6 +9,7 @@ import Satellite from './satellite.js';
 import Trash from './trash.js';
 import StarsBackground from './starsBackground.js';
 import Player from './player.js';
+import TestObj from './testObj.js';
 
 const screen = {
     height: window.innerHeight - 5,
@@ -71,6 +72,9 @@ function init() {
         new Trash(player.phantom, 10, 20, trashReady);
 
     setInterval(updateMap, 1000);
+    document.addEventListener("keydown", onDocumentKeyDown, false);
+
+    new TestObj(player.phantom, 0, 0, trashReady);
 }
 
 function trashReady (trash) {
@@ -106,6 +110,10 @@ function updateMap() {
         if (d > 1000) {
             remove3DO(trash.phantom);
             trashs.splice(index, 1);
+        } else if (d < 50) {
+            player.addWarningObject(trash);
+        } else if (player.hasWarningObject(trash)) {
+            player.removeWarningObject(trash);
         }
     });
     if (trashs.length < 300)
@@ -117,6 +125,14 @@ function remove3DO(obj) {
     selectedObject.geometry.dispose();
     selectedObject.material.dispose();
 }
-
-
-
+function onDocumentKeyDown (event) {
+    let keyCode = event.which;
+    if (keyCode == 90 /*&& player.warningTrash.length > 0*/) {
+        console.log(player.pickup.position.localToWorld(player.phantom));
+        player.warningTrash.forEach((trash, _, __) => {
+            
+            //let d = player.pickup.getWorldPosition(player.phantom.position).position.distanceTo(trash.phantom.position);
+            console.log(_, d);
+        });
+    }
+}
