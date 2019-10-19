@@ -42,7 +42,7 @@ function init() {
 
     player.phantom.position.z = earth.radius + 4e3;
     scene.fog = new THREE.FogExp2( 0x000000, 0.00000025 );
-    dirLight.position.set( -1.25, 0, 0.75 ).normalize();
+    dirLight.position.set( -1.25, 0, 0.75 ).normalize;
 
     scene.add( dirLight );
     scene.add( earth.phantom );
@@ -101,7 +101,7 @@ function render() {
         trash.update(delta);
     });
 
-    player.controls.update( delta );
+    player.update(delta);
     composer.render( delta );
 }
 function updateMap() {
@@ -128,11 +128,11 @@ function remove3DO(obj) {
 function onDocumentKeyDown (event) {
     let keyCode = event.which;
     if (keyCode == 90 /*&& player.warningTrash.length > 0*/) {
-        console.log(player.pickup.position.localToWorld(player.phantom));
         player.warningTrash.forEach((trash, _, __) => {
-            
-            //let d = player.pickup.getWorldPosition(player.phantom.position).position.distanceTo(trash.phantom.position);
-            console.log(_, d);
+            let d = player.phantom.attach(player.pickup).position.distanceTo(trash.phantom.position);
+            if (d < 50) {
+                player.clawClose();
+            }            
         });
     }
 }
