@@ -18,8 +18,8 @@ const screen = {
     resize: function () {
         this.width = window.innerWidth;
         this.height = window.innerHeight;
-        camera.aspect = this.width / this.height;
-        camera.updateProjectionMatrix();
+        //camera.aspect = this.width / this.height;
+        //camera.updateProjectionMatrix();
         renderer.setSize( this.width, this.height );
         composer.setSize( this.width, this.height );
     }
@@ -74,7 +74,9 @@ function init() {
     setInterval(updateMap, 1000);
     document.addEventListener("keydown", onDocumentKeyDown, false);
 
-    new TestObj(player.phantom, 0, 0, trashReady);
+    new TestObj(player.phantom, (test) => {
+        scene.add(test.phantom);
+    });
 }
 
 function trashReady (trash) {
