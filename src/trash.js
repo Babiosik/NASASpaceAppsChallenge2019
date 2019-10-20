@@ -15,6 +15,7 @@ class Trash {
         let speed = Math.random() * (speedMax - speedMin) + speedMin;
         this.tilt = Math.random() * 3.14;
         this.speedRotate = Math.random() * 6 - 3;
+        this.speed = 1;
         this.velocity = new Vector3(Math.random() + 0.5, Math.random() - 0.5, 0).multiplyScalar(-speed);
         this.mesh = null;
 
@@ -52,7 +53,7 @@ class Trash {
     update(delta) {
         if (this.mesh == null)
             return;
-        this.phantom.translateOnAxis(this.velocity, delta);
+        this.phantom.translateOnAxis(this.velocity, delta * this.speed);
         this.mesh.rotateX(this.rotateOnAxis.x * delta * this.speedRotate);
         this.mesh.rotateY(this.rotateOnAxis.x * delta * this.speedRotate);
         this.mesh.rotateZ(this.rotateOnAxis.x * delta * this.speedRotate);

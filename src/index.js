@@ -30,7 +30,10 @@ const starsBackground = new StarsBackground(2e4);
 const dirLight = new THREE.DirectionalLight( 0xffffff );
 const scene = new THREE.Scene();
 const clock = new THREE.Clock();
-const player = new Player(screen, scene);
+const player = new Player(screen, scene,
+    document.querySelector('.fuelCurr'),
+    document.querySelector('.deathScreen')
+);
 let stats, composer;
 let satellites = [], trashs = [];
 
@@ -74,7 +77,8 @@ function init() {
     setInterval(updateMap, 1000);
     document.addEventListener("keydown", onDocumentKeyDown, false);
 
-    new TestObj(player.phantom, trashReady);
+    new TestObj(player.phantom, 10, 0, trashReady);
+    new TestObj(player.phantom, -30, 1, trashReady);
 }
 
 function trashReady (trash) {
@@ -113,11 +117,6 @@ function updateMap() {
         } else if (d < 50) {
             if (!player.hasWarningObject(trash))
                 player.addWarningObject(trash);
-            if (d < 2) {
-                console.log ('death');
-            }
-        } else if (player.hasWarningObject(trash)) {
-            player.removeWarningObject(trash);
         }
     });
     if (trashs.length < 300)
@@ -132,12 +131,6 @@ function remove3DO(obj) {
 function onDocumentKeyDown (event) {
     let keyCode = event.which;
     if (keyCode == 90 && player.warningTrash.length > 0) {
-        player.warningTrash.forEach((trash, _, __) => {
-            let d = player.phantom.attach(player.pickup).position.distanceTo(trash.mesh.position);
-            if (d < 5) {
-                trash.delete = remove3DO;
-                player.clawClose(trash);
-            }            
-        });
+        player.clawClose(remove3DO);
     }
 }
